@@ -23,3 +23,43 @@ create
 destroy
 
 ![image-20201124000015401](assets/image-20201124000015401.png)
+
+线程地址空间
+
+```
+00007fe8f4021000  65404K -----   [ anon ]
+00007fe8fb672000      4K -----   [ anon ]
+00007fe8fb673000   8192K rw---   [ anon ]
+00007fe8fbe73000      4K -----   [ anon ]
+00007fe8fbe74000   8192K rw---   [ anon ]
+00007fe8fc674000      4K -----   [ anon ]
+00007fe8fc675000   8192K rw---   [ anon ]
+00007fe8fce75000      4K -----   [ anon ]
+00007fe8fce76000   8192K rw---   [ anon ]
+00007fe8fd676000      4K -----   [ anon ]
+00007fe8fd677000   8192K rw---   [ anon ]
+00007fe8fde77000      4K -----   [ anon ]
+00007fe8fde78000   8192K rw---   [ anon ]
+00007fe8fe678000      4K -----   [ anon ]
+00007fe8fe679000   8192K rw---   [ anon ]
+00007fe8fee79000      4K -----   [ anon ]
+
+# using pmap 
+```
+
+每一个线程处在一个 8M 的地址空间中，上下存在4k的不可读写的内存页
+
+多线程的难点
+
+1. 原子性 atomicity --> 一段代码不允许和其他代码并发 [dekker]
+2. 执行顺序  编译器优化  内存序
+3. 不可见 乱序执行 （假设 cache miss 可能会先执行后一条指令）
+
+> 通过 volatile 修饰 避免优化
+>
+> 使用 barrier 阻隔 序列
+>
+> 使用 互斥 保证原子性
+
+并发程序的理解
+
