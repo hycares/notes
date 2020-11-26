@@ -43,17 +43,20 @@ OFFSET   TYPE              VALUE
 ## 最小HelloWorld
 
 ```c
+// hello.c
+
 char *str = "hello world!\n";  // 13
 
 void print() {
     asm("movl $13, %%edx \n\t"
        	"movl %0, %%ecx \n\t"
         "movl $0, %%ebx \n\t"
-        "movl $4, %%eax \n\t"
+        "movl $4, %%eax \n\t"    // write 系统调用
         "int $0x80 \n\t"
         ::"r"(str):"edx", "ecx", "ebx");
 }
 
+// 必须要有这段代码才能正确返回到操作系统
 void exit() {
     asm("movl $42, %ebx \n\t"
         "movl $1, %eax \n\t"
@@ -66,3 +69,28 @@ void nomain() {
 }
 ```
 
+```bash
+ gcc -fno-builtin -c hello.c
+ ld -static -e nomain -o hello hello.o
+```
+
+## 链接脚本
+
+链接的程序段可以自行指定，选择，丢弃
+
+```lds
+ENTRY(nomain) /* 指定入口 */
+
+SECTIONS
+{
+  . = 0x8048000 + SIZEOF_HEADERS; /* 指定起始地址 */
+  
+  /* 控制语法 *代表统配所有文件  filename(.text .data) *(.rodata) */
+  tinytext : { *(.text) *(.data) *(.rodata) }
+  
+  /* 丢弃指定段 */
+  /DISCARD/ : { *(.comment) }
+}
+```
+
+ `ld -verbose`查看内置脚本 `-t` 加载指定脚本
