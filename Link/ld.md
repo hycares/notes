@@ -56,7 +56,7 @@ void print() {
         ::"r"(str):"edx", "ecx", "ebx");
 }
 
-// 必须要有这段代码才能正确返回到操作系统
+// x86 必须要有这段代码才能正确返回到操作系统
 void exit() {
     asm("movl $42, %ebx \n\t"
         "movl $1, %eax \n\t"

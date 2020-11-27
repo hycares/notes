@@ -13,7 +13,7 @@ string table
 symbol table
 ```
 
-elf文件信息存储在文件头部，用来描述基本属性，之后存储每一个的段表信息
+elf文件信息存储在文件头部，用来描述基本属性，之后存储每一个的段信息
 
 ## ELF-header section
 
