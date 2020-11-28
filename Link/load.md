@@ -54,3 +54,82 @@
 ![image-20201127162726008](assets/image-20201127162726008.png)
 
 ## 映射关系
+
+如果将每个section都映射到一个VMA中，而VMA又必须按照页大小分配对齐，section的大小如果是1kb却仍然分配4kb，这会产生明显的内存碎片。每一个section实际上只是给程序员理解的，操作系统或者CPU不需要按照section来进行执行，所以不同的section应该想办法合并来减少空间浪费。
+
+每个section是存在权限的，.text和.data不应该合并，因为一个是只读不可写，但按照相同权限来进行合并则不会有影响。
+
+常见权限：
+
+1. .text 可读可执行
+2. .data .bss 可读可写
+3. .rodata 只读
+
+将每权限相似，可合并的section拼接一起可以成为一个Segment （也称为段）
+
+```dump
+# readelf -l a.out
+
+Elf file type is EXEC (Executable file)
+Entry point 0x401a30
+There are 8 program headers, starting at offset 64
+
+Program Headers:
+  Type           Offset             VirtAddr           PhysAddr
+                 FileSiz            MemSiz              Flags  Align
+  LOAD           0x0000000000000000 0x0000000000400000 0x0000000000400000
+                 0x0000000000000470 0x0000000000000470  R      0x1000
+  LOAD           0x0000000000001000 0x0000000000401000 0x0000000000401000
+                 0x000000000007b351 0x000000000007b351  R E    0x1000
+  LOAD           0x000000000007d000 0x000000000047d000 0x000000000047d000
+                 0x000000000002374c 0x000000000002374c  R      0x1000
+  LOAD           0x00000000000a10e0 0x00000000004a20e0 0x00000000004a20e0
+                 0x00000000000051f0 0x0000000000006940  RW     0x1000
+  NOTE           0x0000000000000200 0x0000000000400200 0x0000000000400200
+                 0x0000000000000044 0x0000000000000044  R      0x4
+  TLS            0x00000000000a10e0 0x00000000004a20e0 0x00000000004a20e0
+                 0x0000000000000020 0x0000000000000060  R      0x8
+  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000
+                 0x0000000000000000 0x0000000000000000  RW     0x10
+  GNU_RELRO      0x00000000000a10e0 0x00000000004a20e0 0x00000000004a20e0
+                 0x0000000000002f20 0x0000000000002f20  R      0x1
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     .note.ABI-tag .note.gnu.build-id .rela.plt
+   01     .init .plt .text __libc_freeres_fn .fini
+   02     .rodata .eh_frame .gcc_except_table
+   03     .tdata .init_array .fini_array .data.rel.ro .got .got.plt .data __libc_subfreeres __libc_IO_vtables __libc_atexit .bss __libc_freeres_ptrs
+   04     .note.ABI-tag .note.gnu.build-id
+   05     .tdata .tbss
+   06
+   07     .tdata .init_array .fini_array .data.rel.ro .go
+```
+
+Linux 一切皆文件
+
+```dump
+00400000-00401000 r--p 00000000 fd:01 1058962                            /home/ics/src/ld/secmp.elf
+00401000-0047d000 r-xp 00001000 fd:01 1058962                            /home/ics/src/ld/secmp.elf
+0047d000-004a1000 r--p 0007d000 fd:01 1058962                            /home/ics/src/ld/secmp.elf
+004a2000-004a8000 rw-p 000a1000 fd:01 1058962                            /home/ics/src/ld/secmp.elf
+004a8000-004a9000 rw-p 00000000 00:00 0
+01446000-01469000 rw-p 00000000 00:00 0                                  [heap]
+7ffc9e94d000-7ffc9e96e000 rw-p 00000000 00:00 0                          [stack]
+7ffc9e9fa000-7ffc9e9fc000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+```
+
+p权限代表private 私有空间 与之对应的是共享空间 s
+
+如果segment的大小如果是页面倍数多一些，但是仍然要占用一个页面，所以可以将多个segment映射到一个物理页面，但是物理页可以映射两份到虚拟页。
+
+## ELF文件的装载过程
+
+Linux系统API调用
+
+```c
+// unistd.h
+int execve(const char* filename, char* const argv[], char* const envp[]);
+```
+
