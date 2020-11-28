@@ -4,3 +4,4 @@
 2. ld 链接过程
 3. inline-asm gcc的内联汇编
 4. load 程序如何装载
+5. dynamic-ld 动态链接
