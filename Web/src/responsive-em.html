@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>em-rem-px</title>
+</head>
+<body>
+    <style>
+        :root {
+            font-size: calc(0.5em + 1vw);
+            --main-bg: #ccc;
+        }
+
+        /* @media (min-width: 800px) {
+            :root {
+                font-size: 0.875em;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            :root {
+                font-size: 1em;
+            };
+        } */
+
+        .padded {
+            font-size: 16px;
+            padding: 1em;
+            border-color: black;
+            border-style: dashed;
+            background-color: var(--main-bg, #eeeeee);
+        }
+
+        .slogan {
+            font-size: 1.2em;
+            padding: 1.2em;
+        }
+    </style>
+    <div class="padded">
+        happy birthday to you!
+    </div>
+
+    <div>
+        what is 
+        <p class="slogan">earth ?</p>
+    </div>
+
+    <div style="font-size: 16px;">
+        <style>
+           ul {
+               font-size: 0.8rem;
+           }
+           ul ul {
+               font-size:  1em;
+           }
+        </style>
+        <ul>
+            <li>That 1
+                <ul>
+                    <li>That 2
+                        <ul>
+                            <li>That 3
+                                <ul>
+                                    <li>That 4</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div>
+        <style>
+            .panel {
+                padding: 1em;
+                border-radius: 0.5em;
+                border: 1px solid #999;
+                --main-bg: red;
+            }
+
+            .panel > h2 {
+                margin-top: 0;
+                font-size: 0.8rem;
+                font-weight: bold;
+                text-transform: uppercase;
+                background-color: var(--main-bg);
+            }
+        </style>
+        <div class="panel">
+            <h2>headint part</h2>
+            jfdasks;jfkjdkasfjkld;fjasdkljfklaldsj;flkajdflkjad;faklfj;lkhgdiotrueioh
+        </div>
+    </div>
+
+    <style>
+        .square {
+            width: 10vw;
+            height: 10vw;
+            background-color: #999;
+        }
+    </style>
+
+    <div class="square"></div>
+</body>
+</html>
