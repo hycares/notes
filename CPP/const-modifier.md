@@ -33,6 +33,24 @@ void print() const {
 }
 ```
 
+### 使用type_traits修改
+
+```cpp
+// remove_const 的问题
+
+std::remove_const<cc>::type a;             // char a
+std::remove_const<const char*>::type b;    // const char* b
+std::remove_const<char* const>::type c;    // char* c
+```
+
+对于 指针而言 常量指针 并不是常量，const 修饰的变量类型而非指针，所以无法移除常量指针的const，指针常量是常量，所以可以移除。
+
+```cpp
+auto *rcthis = const_cast<typename std::add_pointer_t<
+    		typename std::remove_const_t<
+    typename std::remove_pointer_t<decltype(this)>>>>(this);
+```
+
 ## 函数重载中的const
 
 函数重载的判断准则就是能否查找到一个符合的函数进行调用（决议）
@@ -94,7 +112,7 @@ printf("%d, %p", *pval, &pval);              // 1 0xaddr
 
 通过汇编代码发现，编译器生成的代码将所有`val`都替换成立即数。所以修改是无法直接通过val体现，从地址可以判断，值实际上是修改的！
 
-解决方法是加上`volatile`关键字这样能够每次都从内存中获取新值。
+解决方法是加上`volatile`关键字，每次都从内存中获取新值。
 
 ```cpp
 volatile const int val = 0;
